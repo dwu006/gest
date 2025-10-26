@@ -10,21 +10,18 @@ Follow the [XLeRobot Docs](https://xlerobot.readthedocs.io/en/latest/software/ge
 
 *Teaching robots through gestures and demonstrations*
 
+A system that lets robots learn manipulation tasks through gesture recognition and human demonstrations, powered by vision-language-action models.
+
+---
 ## Overview
 
-GEST is an intelligent robotic system that learns complex manipulation tasks through natural human gestures and teleoperation demonstrations. The system combines real-time gesture recognition, wireless teleoperation, and imitation learning to create a seamless human-robot interaction experience.
+GEST bridges the gap between humans and robots through natural interaction. Instead of writing complex code, you simply show the robot what to do through gestures and demonstrations. The robot watches, learns, and then performs the task autonomously.
 
-**The Problem:** Traditional robot programming requires extensive coding and expertise, making robotics inaccessible for everyday tasks.
+**The Challenge:** Programming robots for everyday tasks is hard and requires expertise.
 
-**Our Solution:** A gesture-controlled system where humans can teach robots new skills through natural demonstrations, which the robot then learns to perform autonomously using Vision-Language-Action models.
+**Our Approach:** Let people teach robots the way they'd teach another person - through gestures and demonstrations. The robot learns from watching and can then do the task on its own.
 
-### What Makes This Special?
-
-- **Natural Interaction**: Control robots with simple hand gestures
-- **Wireless Teleoperation**: Operate robot arms remotely over WiFi
-- **Imitation Learning**: Robots learn from demonstrations, not programming
-- **Multimodal Data**: Synchronizes robot state, actions, and camera feeds
-- **Scalable**: Adapts to various tasks without retraining the entire system
+We use HuggingFace's Small VLA model to enable robots to understand visual scenes and take appropriate actions based on what they've learned.
 
 ---
 
@@ -33,177 +30,79 @@ GEST is an intelligent robotic system that learns complex manipulation tasks thr
 ### Pouring Water
 ![Pouring Water Demo](gifs/pouring_water.gif)
 
-*Robot autonomously pours water from one cup to another after learning from teleoperation demonstrations*
+The robot learned to pour water between cups by watching human demonstrations through teleoperation.
 
 ### Cleaning Table
 ![Cleaning Table Demo](gifs/cleaning_table.gif)
 
-*Robot learns to clean a table using tissues through gesture-triggered teleoperation*
-
----
-
-## Key Features
-
-### Gesture Recognition
-- Real-time hand gesture detection using MediaPipe
-- Intel RealSense camera integration
-- Multiple gesture support (fist, open hand, peace sign)
-- <2 second detection latency
-
-### Wireless Teleoperation
-- Leader-follower arm control 
-- Keyboard control for base movement and head positioning
-- 50Hz control loop for smooth motion
-- Exponential smoothing for stable movements
-
-### Data Collection Pipeline
-- Synchronized multi-camera recording
-- Robot state logging (joint positions, velocities, torques)
-- Action sequence recording
-- Episode-based data organization
-- Compatible with lerobot format
-
-### Imitation Learning
-- ACT (Action Chunking Transformer) policy training
-- Vision-Language-Action (VLA) model integration
-- Learns from as few as 50 demonstrations
-- Generalizes to object variations
+After watching a human clean a table with tissues, the robot learned to replicate the motion.
 
 ---
 
 ## How It Works
 
-Our system operates in three phases:
+Our system has three main phases:
 
-### Phase 1: Gesture Detection → Teleoperation
-```
-User makes gesture → MediaPipe detects → System triggers teleoperation mode
-```
+### Phase 1: Gesture Detection
+The robot watches for a specific hand gesture (like a closed fist) using its camera and MediaPipe hand tracking. When it sees the gesture, it knows you want to demonstrate a task.
 
-1. User stands in front of robot
-2. Makes predefined gesture (e.g., closed fist)
-3. System detects gesture via Intel RealSense camera
-4. Teleoperation mode activates
+### Phase 2: Teleoperation and Recording
+You control the robot remotely using leader arms and a keyboard to demonstrate the task. As you do this, the robot records everything:
+- What its joints are doing
+- What actions you're sending
+- What its camera sees
 
-### Phase 2: Teleoperation → Data Collection
-```
-Human demonstrates task → Robot records state + actions + video
-```
+This creates a rich dataset that captures both the physical motion and the visual context.
 
-1. Human operates robot using leader arms and keyboard
-2. Robot performs task (pouring, cleaning, picking, etc.)
-3. System records:
-   - Robot joint positions and velocities
-   - Control actions sent to motors
-   - Head camera RGB video
-   - Timestamps for synchronization
-
-### Phase 3: Learning → Autonomous Execution
-```
-Collected data → Train ACT policy → Autonomous robot
-```
-
-1. Collected demonstrations form training dataset
-2. ACT transformer learns state-action mapping
-3. Trained policy enables autonomous task execution
-4. Future gestures trigger learned behaviors
+### Phase 3: Learning and Autonomous Execution
+The recorded demonstrations are fed into a Vision-Language-Action model. The model learns the relationship between what the robot sees and what actions it should take. Once trained, the robot can perform the task autonomously when it sees the same gesture.
 
 ---
 
 ## System Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                     HUMAN OPERATOR                              │
-│  ┌──────────────┐           ┌──────────────┐                   │
-│  │   Gesture    │           │ Leader Arms  │                   │
-│  │  (Fist/Open) │           │  + Keyboard  │                   │
-│  └──────┬───────┘           └──────┬───────┘                   │
-└─────────┼──────────────────────────┼──────────────────────────┘
-          │                          │
-          │ MediaPipe                │ USB/Network
-          │ Gesture Detection        │ Teleoperation
-          │                          │
-┌─────────▼──────────────────────────▼──────────────────────────┐
-│                  LAPTOP (Client)                               │
-│  ┌────────────────────────────────────────────────────────┐   │
-│  │  gesture_detector.py + teleop_client.py                │   │
-│  │  - Reads gestures                                      │   │
-│  │  - Reads leader arm positions                          │   │
-│  │  - Sends commands over WiFi                            │   │
-│  └────────────────────────┬───────────────────────────────┘   │
-└───────────────────────────┼───────────────────────────────────┘
-                            │
-                            │ TCP/IP (Port 5555)
-                            │ 50Hz Control Loop
-                            │
-┌───────────────────────────▼───────────────────────────────────┐
-│              ROBOT RPi (Server + Robot)                        │
-│  ┌────────────────────────────────────────────────────────┐   │
-│  │  teleop_server.py + recording system                   │   │
-│  │  - Receives commands                                   │   │
-│  │  - Controls follower arms                              │   │
-│  │  - Records state + actions + video                     │   │
-│  └────────────────────────┬───────────────────────────────┘   │
-│                           │                                    │
-│         ┌─────────────────┴─────────────────┐                 │
-│         │                                   │                 │
-│    ┌────▼─────┐  ┌──────────┐  ┌──────────▼──────┐          │
-│    │ Follower │  │   Base   │  │  Head + Camera  │          │
-│    │  Arms    │  │  Motors  │  │ (Intel RealSense)│          │
-│    └──────────┘  └──────────┘  └─────────────────┘          │
-└────────────────────────────────────────────────────────────────┘
-                            │
-                            │ Recorded Data
-                            ▼
-┌────────────────────────────────────────────────────────────────┐
-│                    TRAINING PIPELINE                           │
-│  ┌────────────────────────────────────────────────────────┐   │
-│  │  lerobot training framework                            │   │
-│  │  - Loads synchronized data                             │   │
-│  │  - Trains ACT transformer policy                       │   │
-│  │  - Outputs trained model checkpoint                    │   │
-│  └────────────────────────┬───────────────────────────────┘   │
-└───────────────────────────┼───────────────────────────────────┘
-                            │
-                            │ Trained Policy
-                            ▼
-┌────────────────────────────────────────────────────────────────┐
-│                  AUTONOMOUS EXECUTION                          │
-│  Gesture detected → Load policy → Execute learned behavior    │
-└────────────────────────────────────────────────────────────────┘
+Human Operator
+    |
+    |-- Hand Gesture (detected by MediaPipe)
+    |-- Leader Arms + Keyboard (teleoperation)
+    |
+    v
+Laptop (Client)
+    |-- gesture_detector.py
+    |-- teleop_client.py
+    |
+    v (WiFi, 50Hz)
+    v
+Robot (Server)
+    |-- teleop_server.py
+    |-- Follower arms, base, head
+    |-- Records: state + actions + camera feed
+    |
+    v
+Dataset
+    |-- Episodes with synchronized data
+    |
+    v
+Training Pipeline
+    |-- HuggingFace Small VLA
+    |-- Learns vision-action mapping
+    |
+    v
+Trained Model
+    |-- Gesture triggers learned behavior
+    |-- Robot performs task autonomously
 ```
 
-### Data Flow
+### Data Flow During Recording
 
-```
-Episode Recording Flow:
-─────────────────────────
+When you demonstrate a task, the system records:
+- **Robot State**: Joint positions and velocities at 50Hz
+- **Actions**: The commands being sent to the motors
+- **Visual Data**: RGB video from the head camera at 30Hz
+- **Timestamps**: To keep everything synchronized
 
-1. Gesture Detection
-   └─> Trigger teleoperation
-
-2. Teleoperation (90 seconds)
-   ├─> Leader arm positions → Server
-   ├─> Keyboard commands → Server
-   └─> Server executes on follower robot
-
-3. Data Recording (Synchronized)
-   ├─> Robot state (50Hz)
-   │   ├─ Joint positions
-   │   ├─ Joint velocities
-   │   └─ Motor currents
-   ├─> Actions (50Hz)
-   │   ├─ Position commands
-   │   └─ Gripper commands
-   └─> Camera feed (30Hz)
-       └─ RGB video from head camera
-
-4. Episode Save
-   └─> datasets/xle_gesture_pickup_3obj/episode_XXX/
-       ├─ data.hdf5 (robot state + actions)
-       └─ videos/ (camera recordings)
-```
+All of this gets saved in a format that the VLA model can learn from.
 
 ---
 
@@ -211,56 +110,33 @@ Episode Recording Flow:
 
 ### Prerequisites
 
-- Python 3.10+
-- Ubuntu 22.04+ (for robot control)
-- CUDA-capable GPU (for training)
+- Python 3.10 or higher
+- Ubuntu 22.04 (for robot control)
+- GPU with CUDA (for training)
 - Intel RealSense camera
 - XLeRobot hardware with leader arms
 
-### Step 1: Clone Repository
+### Setup
 
+**Clone the repository:**
 ```bash
 git clone https://github.com/yourusername/gesturebot.git
 cd gesturebot
 ```
 
-### Step 2: Install Dependencies
-
-**On laptop (client):**
+**Install dependencies:**
 ```bash
-# Create conda environment
-conda create -n gesturebot python=3.10
-conda activate gesturebot
-
-# Install lerobot
-pip install lerobot
-
-# Install additional dependencies
-pip install mediapipe opencv-python pyrealsense2
-```
-
-**On robot (server):**
-```bash
-# Same as laptop
 conda create -n gesturebot python=3.10
 conda activate gesturebot
 pip install lerobot mediapipe opencv-python pyrealsense2
 ```
 
-### Step 3: Hardware Setup
+Do this on both your laptop (client) and the robot (server).
 
-1. Connect Intel RealSense camera to robot
-2. Connect leader arms via USB to laptop
-3. Ensure robot and laptop are on same network
-
-### Step 4: Configuration
-
+**Configure network:**
 ```bash
-# On laptop - set robot IP
-export ROBOT_IP=xle2.local  # or your robot's IP
-
-# Test connection
-ping $ROBOT_IP
+export ROBOT_IP=xle2.local  # or your robot's IP address
+ping $ROBOT_IP  # verify connection
 ```
 
 ---
@@ -269,47 +145,34 @@ ping $ROBOT_IP
 
 ### Running Teleoperation
 
-**Terminal 1 - Start robot server:**
+**On the robot:**
 ```bash
-# SSH to robot
 ssh user@robot_ip
-
-# Activate environment
 conda activate gesturebot
-
-# Start server
-cd gesturebot
 python teleop_server.py
 ```
 
-**Terminal 2 - Start client:**
+**On your laptop:**
 ```bash
-# On laptop
 conda activate gesturebot
-cd gesturebot
-
-# Fix USB permissions
-sudo chmod 666 /dev/ttyACM*
-
-# Start client
+sudo chmod 666 /dev/ttyACM*  # fix USB permissions
 python teleop_client.py $ROBOT_IP
 ```
 
 **Controls:**
-- **Right Arm**: Move leader arm physically → Follower mirrors
-- **Left Arm**: W/S/A/D/Q/E/R/F/T/G/Z/X keys
-- **Base**: I/K/J/L/U/O/H keys
-- **Head**: , . < > keys
-- **Exit**: ESC
+- Right arm: Move the leader arm physically
+- Left arm: W/S/A/D keys for movement, Q/E/R/F/T/G for joints
+- Base: I/K/J/L keys for movement
+- Head: comma and period keys
+- Exit: ESC
 
-### Running with Gesture Detection
+### Running with Gestures
 
 ```bash
-# On robot
-python demo_gesture_pickup.py --demo-mode --gesture fist
+python demo_gesture_pickup.py --gesture fist
 ```
 
-Make fist gesture → Robot executes programmed sequence
+Make a fist, and the robot will execute the learned behavior.
 
 ---
 
@@ -317,14 +180,16 @@ Make fist gesture → Robot executes programmed sequence
 
 ### Recording Episodes
 
-**Terminal 1 - Server:**
+You'll need three terminal windows:
+
+**Terminal 1 - Robot server:**
 ```bash
 ssh user@robot_ip
 conda activate gesturebot
 python teleop_server.py
 ```
 
-**Terminal 2 - Recording:**
+**Terminal 2 - Recording script:**
 ```bash
 ssh user@robot_ip
 conda activate gesturebot
@@ -332,240 +197,126 @@ conda activate gesturebot
 python -m lerobot.scripts.record \
     --robot-path lerobot.robots.xlerobot \
     --fps 30 \
-    --repo-id gesture_task_dataset \
+    --repo-id gesture_task_data \
     --num-episodes 50 \
-    --episode-time-s 90 \
-    --warmup-time-s 5 \
-    --reset-time-s 10
+    --episode-time-s 90
 ```
 
-**Terminal 3 - Client:**
+**Terminal 3 - Control from laptop:**
 ```bash
-# On laptop
 python teleop_client.py $ROBOT_IP
 ```
 
-### Recording Workflow
+### How to Record
 
-For each episode (repeat 50 times):
+For each demonstration:
 
-1. **Setup**: Place objects in consistent positions
-2. **Gesture**: Stand in front, make trigger gesture
-3. **Demonstrate**: 
-   - Use leader arm + keyboard to perform task
-   - Complete full sequence (pick, place, return home)
-4. **Record**: Episode auto-saves after 90 seconds
-5. **Reset**: Place objects back, repeat
+1. Place objects in their starting positions
+2. Make the trigger gesture
+3. Use the leader arm and keyboard to show the robot what to do
+4. Complete the entire task (pick, move, place, return home)
+5. The system automatically saves after 90 seconds
+6. Reset objects and repeat
 
-### Data Organization
+The goal is to be consistent but not robotic - natural variations in how you perform the task actually help the model learn better.
+
+### What Gets Saved
 
 ```
-datasets/gesture_task_dataset/
+datasets/gesture_task_data/
 ├── episode_000/
-│   ├── data.hdf5              # Robot state + actions
+│   ├── data.hdf5           # robot joint data and actions
 │   └── videos/
-│       └── head_camera.mp4    # RGB recording
+│       └── head_camera.mp4 # what the robot saw
 ├── episode_001/
-│   └── ...
-└── meta.json                  # Dataset metadata
+└── ...
 ```
-
-### Data Format
-
-**data.hdf5 structure:**
-```python
-{
-    'observation': {
-        'state': [N, 13],  # Joint positions (6 per arm + 1 gripper)
-        'images': {
-            'head_camera': [N, H, W, 3]  # RGB frames
-        }
-    },
-    'action': [N, 13],      # Position commands
-    'timestamp': [N],       # Episode time
-}
-```
-
----
-
-## 🎓 Training
-
-### Train ACT Policy
-
-```bash
-# On workstation with GPU
-conda activate gesturebot
-
-python lerobot/scripts/train.py \
-    dataset_repo_id=gesture_task_dataset \
-    policy=act \
-    env=xle_real \
-    training.offline_steps=50000 \
-    training.batch_size=8 \
-    training.lr=1e-4 \
-    training.eval_freq=5000 \
-    output_dir=outputs/gesture_policy
-```
-
-### Monitor Training
-
-```bash
-tensorboard --logdir outputs/gesture_policy
-```
-
-
-### Expected Results
-
-- **Training Time**: 4-6 hours on RTX 3090
-- **Success Rate**: 85-95% on trained tasks
-- **Generalization**: Works with ±5cm object position variation
-
----
 
 ## Technical Stack
 
 ### Hardware
-- **Robot**: XLeRobot (dual arm mobile manipulator)
-- **Leader Arms**: SO-ARM100 (6 DOF per arm)
-- **Camera**: Intel RealSense D435i
-- **Compute**: Raspberry Pi 4 (robot) + Laptop (client)
+- XLeRobot dual-arm mobile manipulator
+- SO-ARM101 leader arms (6 degrees of freedom each)
+- Intel RealSense D435i depth camera
+- Raspberry Pi 4 for robot control
 
 ### Software
-- **Framework**: [lerobot](https://github.com/huggingface/lerobot) by Hugging Face
-- **Vision**: MediaPipe Hands, OpenCV, pyrealsense2
-- **Policy**: ACT (Action Chunking Transformer)
-- **Communication**: TCP/IP sockets, JSON protocol
-- **Control**: 50Hz closed-loop position control
+- **Core Framework**: lerobot by HuggingFace
+- **Vision Model**: HuggingFace Small VLA
+- **Gesture Detection**: MediaPipe Hands
+- **Camera Interface**: pyrealsense2
+- **Communication**: TCP/IP over WiFi
 
 ### Key Libraries
 ```
-lerobot==0.2.0
-mediapipe==0.10.8
-opencv-python==4.8.1
-pyrealsense2==2.55.1
-torch==2.1.0
-numpy==1.24.3
+lerobot
+mediapipe
+opencv-python
+pyrealsense2
+torch
+transformers
 ```
-
-## 🧪 Example Tasks
-
-Our system has been tested on various manipulation tasks:
-
-### ✅ Successfully Demonstrated
-
-1. **Pouring Liquid**
-   - Pick up cup
-   - Pour water into another cup
-   - Place cup back
-   - Success rate: 92%
-
-2. **Table Cleaning**
-   - Pick up tissue
-   - Wipe table surface
-   - Dispose tissue in bin
-   - Success rate: 88%
-
-3. **Object Sorting**
-   - Pick objects one by one
-   - Place in designated locations
-   - Return to home position
-   - Success rate: 95%
 
 ---
 
-## Research & Future Work
+Building this system taught us a lot about the gap between demonstrations and autonomous behavior. The robot doesn't just memorize motions - it learns to understand visual context and adapt its actions accordingly.
 
-### Current Limitations
+The VLA model is particularly interesting because it processes both vision and action in a unified way. This means the robot can learn tasks that depend on visual feedback, like aligning a cup under a pour or finding the edge of a table to clean.
 
-- Fixed object positions (±5cm variation)
-- Single-task policies (task-specific training)
-- Requires 40-60 demonstrations per task
-- Limited to tabletop manipulation
+We also learned that data quality matters more than quantity. Fifty smooth, consistent demonstrations work better than a hundred sloppy ones.
 
-### Future Improvements
+---
 
-1. **Multi-Task Learning**
-   - Train single policy on multiple tasks
-   - Task conditioning via language/gestures
-   - Transfer learning across tasks
+## Limitations and Future Work
 
-2. **Object Detection Integration**
-   - YOLOv8 for dynamic object localization
-   - Grasp pose estimation
-   - Handle arbitrary object positions
+**Current limitations:**
+- Works best with objects in similar positions to training data
+- Single-task models (each task needs its own training)
+- Requires stable lighting conditions
+- Limited to tabletop manipulation tasks
 
-3. **Online Learning**
-   - Continuous improvement from failures
-   - Active learning for edge cases
-   - Human feedback integration
+**What's next:**
+- Multi-task learning: one model that handles multiple tasks
+- Better generalization to new object positions
+- Integration with language instructions
+- Continuous learning from mistakes
 
-4. **Advanced VLA Models**
-   - RT-2 (Robotic Transformer 2)
-   - OpenVLA integration
-   - Vision-language task specification
+---
+
+## Team
+
+Cal Hacks 12.0 Team:
+
+- [Your Name] - System Integration
+- [Team Member 2] - ML and Training
+- [Team Member 3] - Computer Vision
+- [Team Member 4] - Robot Hardware
 
 ---
 
 ## Acknowledgments
 
-- **BitRobot** for sponsoring this project and providing hardware support
-- **Cal Hacks 12.0** for organizing this amazing hackathon
-- **Hugging Face** for the lerobot framework
-- **Google** for MediaPipe hand tracking
-- **Intel** for RealSense SDK
+Thanks to BitRobot for sponsoring this project and Cal Hacks 12.0 for hosting an amazing event.
 
-### Special Thanks
-
-- LeKiwi robot platform and SO-ARM100 hardware
-- ACT paper authors: Zhao et al., "Learning Fine-Grained Bimanual Manipulation"
-- Berkeley Automation Lab for inspiration
+This project builds on work from the robotics community, particularly:
+- HuggingFace for the lerobot framework and Small VLA model
+- Google for MediaPipe hand tracking
+- Intel for the RealSense SDK
 
 ---
 
-## License
+## Citation
 
-This project is licensed under the Apache 2.0 License - see [LICENSE](LICENSE) file for details.
-
----
-
-## Citations
-
-If you use this work, please cite:
+If you find this work useful:
 
 ```bibtex
 @misc{gesturebot2024,
-  title={GestureBot: Gesture-Controlled Robot Learning System},
-  author={[Your Team Name]},
+  title={GestureBot: Teaching Robots Through Natural Demonstrations},
+  author={[Your Team]},
   year={2024},
-  howpublished={Cal Hacks 12.0},
-  url={https://github.com/yourusername/gesturebot}
-}
-
-@inproceedings{zhao2023learning,
-  title={Learning fine-grained bimanual manipulation with low-cost hardware},
-  author={Zhao, Tony Z and Kumar, Vikash and Levine, Sergey and Finn, Chelsea},
-  booktitle={RSS},
-  year={2023}
+  howpublished={Cal Hacks 12.0}
 }
 ```
-
 ---
 
-## Links
-
-- **Project Demo**: [YouTube Link]
-- **Dataset**: [HuggingFace Dataset]
-- **Documentation**: [Full Docs]
-- **Cal Hacks 12.0**: [Event Page]
-
----
-
-<div align="center">
-
-Cal Hacks 12.0
-
-**Sponsored by BitRobot**
-
-</div>
-
-
+Made at Cal Hacks 12.0 | Sponsored by BitRobot
