@@ -51,7 +51,7 @@ The robot learned to pour water between cups by watching human demonstrations th
 ### Cleaning Table
 ![Cleaning Table Demo](cleaning_table.gif)
 
-After watching a human clean a table with tissues, the robot learned to replicate the motion.
+After watching a human clean a table with tissues, the robot learns to replicate the motion.
 
 ---
 
