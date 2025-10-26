@@ -1,0 +1,15 @@
+# Gesture Recognition Dependencies
+opencv-python>=4.8.0
+mediapipe>=0.10.0
+pyrealsense2>=2.54.0
+tensorflow>=2.13.0
+numpy>=1.24.0
+
+# SmoLVLA and LeRobot Dependencies
+torch>=2.0.0
+torchvision>=0.15.0
+huggingface_hub>=0.20.0
+transformers>=4.35.0
+
+# Note: Install LeRobot separately with: pip install lerobot
+# Or from source: pip install -e .
