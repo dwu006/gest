@@ -44,12 +44,12 @@ We use HuggingFace's SmolVLA model to enable robots to understand visual scenes 
 ## Demo
 
 ### Pouring Water
-![Pouring Water Demo](gifs/pouring_water.gif)
+![Pouring Water Demo](pouring_water.gif)
 
 The robot learned to pour water between cups by watching human demonstrations through teleoperation.
 
 ### Cleaning Table
-![Cleaning Table Demo](gifs/cleaning_table.gif)
+![Cleaning Table Demo](cleaning_table.gif)
 
 After watching a human clean a table with tissues, the robot learned to replicate the motion.
 
