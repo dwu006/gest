@@ -23,6 +23,7 @@ A system that lets robots learn manipulation tasks through gesture recognition a
     - [Recording Episodes](https://github.com/dwu006/gest?tab=readme-ov-file#recording-episodes)
     - [How to Record](https://github.com/dwu006/gest?tab=readme-ov-file#how-to-record)
     - [Data Format](https://github.com/dwu006/gest?tab=readme-ov-file#what-gets-saved)
+- [LLM Agent Control](https://github.com/dwu006/gest?tab=readme-ov-file#llm-agent-control)
 - [Technical Stack](https://github.com/dwu006/gest?tab=readme-ov-file#technical-stack)
 - [Limitations & Future Work](https://github.com/dwu006/gest?tab=readme-ov-file#limitations-and-future-work)
 - [Acknowledgments](https://github.com/dwu006/gest?tab=readme-ov-file#acknowledgments)
@@ -289,6 +290,27 @@ datasets/
         ├── episode_000.mp4                  # right camera video
         └── ...                              # future episodes
 ```
+## LLM Agent Control
+
+If you haven't 
+```bash
+conda activate lerobot
+pip install robocrew
+```
+Create a .env file with your Google Gemini API
+```bash
+GOOGLE_API_KEY=<your-api-key>
+```
+Update your task description in llm_agent.py and run
+```bash
+cd examples
+python llm_agent.py
+```
+If the above cmd doesn't work, run:
+```bash
+export GOOGle_API_KEY=<your-api-key>
+python llm_agent.py
+```
 
 ## Technical Stack
 
@@ -308,6 +330,7 @@ datasets/
 ### Key Libraries
 ```
 lerobot
+robocrew
 mediapipe
 opencv-python
 pyrealsense2
