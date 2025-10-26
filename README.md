@@ -37,7 +37,7 @@ GEST bridges the gap between humans and robots through natural interaction. Inst
 
 **Our Approach:** Let people teach robots the way they'd teach another person - through gestures and demonstrations. The robot learns from watching and can then do the task on its own.
 
-We use HuggingFace's Small VLA model to enable robots to understand visual scenes and take appropriate actions based on what they've learned.
+We use HuggingFace's SmolVLA model to enable robots to understand visual scenes and take appropriate actions based on what they've learned.
 
 ---
 
@@ -101,7 +101,7 @@ Dataset
     |
     v
 Training Pipeline
-    |-- HuggingFace Small VLA
+    |-- HuggingFace SmolVLA
     |-- Learns vision-action mapping
     |
     v
@@ -367,7 +367,7 @@ We also learned that data quality matters more than quantity. Fifty smooth, cons
 Thanks to BitRobot for sponsoring this project and Cal Hacks 12.0 for hosting an amazing event!
 
 This project builds on work from the robotics community, particularly:
-- HuggingFace for the lerobot framework and Small VLA model
+- HuggingFace for the lerobot framework and SmolVLA model
 - Google for MediaPipe hand tracking
 - Intel for the RealSense SDK
 
@@ -380,7 +380,7 @@ If you find this work useful:
 ```bibtex
 @misc{gesturebot2024,
   title={GEST: Gesture-Enabled System for Teleoperation},
-  author={[Your Team]},
+  author={[GEST]},
   year={2025},
   howpublished={Cal Hacks 12.0}
 }
