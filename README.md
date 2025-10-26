@@ -127,7 +127,6 @@ All of this gets saved in a format that the VLA model can learn from.
 ### Prerequisites
 
 - Python 3.10 or higher
-- Ubuntu 22.04 (for robot control)
 - GPU with CUDA (for training)
 - Intel RealSense camera
 - XLeRobot hardware with leader arms
@@ -318,7 +317,7 @@ python llm_agent.py
 - XLeRobot dual-arm mobile manipulator
 - SO-ARM101 leader arms (6 degrees of freedom each)
 - Intel RealSense D435i depth camera
-- Raspberry Pi 4 for robot control
+- Raspberry Pi for robot control
 
 ### Software
 - **Core Framework**: lerobot by HuggingFace
@@ -351,7 +350,6 @@ We also learned that data quality matters more than quantity. Fifty smooth, cons
 ## Limitations and Future Work
 
 **Current limitations:**
-- Works best with objects in similar positions to training data
 - Single-task models (each task needs its own training)
 - Requires stable lighting conditions
 - Limited to tabletop manipulation tasks
