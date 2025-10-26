@@ -42,28 +42,28 @@ GEST is an intelligent robotic system that learns complex manipulation tasks thr
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-### 🎭 Gesture Recognition
+### Gesture Recognition
 - Real-time hand gesture detection using MediaPipe
 - Intel RealSense camera integration
 - Multiple gesture support (fist, open hand, peace sign)
 - <2 second detection latency
 
-### 🎮 Wireless Teleoperation
+### Wireless Teleoperation
 - Leader-follower arm control 
 - Keyboard control for base movement and head positioning
 - 50Hz control loop for smooth motion
 - Exponential smoothing for stable movements
 
-### 📊 Data Collection Pipeline
+### Data Collection Pipeline
 - Synchronized multi-camera recording
 - Robot state logging (joint positions, velocities, torques)
 - Action sequence recording
 - Episode-based data organization
 - Compatible with lerobot format
 
-### 🧠 Imitation Learning
+### Imitation Learning
 - ACT (Action Chunking Transformer) policy training
 - Vision-Language-Action (VLA) model integration
 - Learns from as few as 50 demonstrations
@@ -71,7 +71,7 @@ GEST is an intelligent robotic system that learns complex manipulation tasks thr
 
 ---
 
-## 🔄 How It Works
+## How It Works
 
 Our system operates in three phases:
 
@@ -110,7 +110,7 @@ Collected data → Train ACT policy → Autonomous robot
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -207,7 +207,7 @@ Episode Recording Flow:
 
 ---
 
-## 🚀 Installation
+## Installation
 
 ### Prerequisites
 
@@ -265,7 +265,7 @@ ping $ROBOT_IP
 
 ---
 
-## 💻 Usage
+## Usage
 
 ### Running Teleoperation
 
@@ -313,7 +313,7 @@ Make fist gesture → Robot executes programmed sequence
 
 ---
 
-## 📊 Data Collection
+## Data Collection
 
 ### Recording Episodes
 
@@ -422,7 +422,7 @@ tensorboard --logdir outputs/gesture_policy
 
 ---
 
-## 🛠️ Technical Stack
+## Technical Stack
 
 ### Hardware
 - **Robot**: XLeRobot (dual arm mobile manipulator)
@@ -473,7 +473,7 @@ Our system has been tested on various manipulation tasks:
 
 ---
 
-## 🔬 Research & Future Work
+## Research & Future Work
 
 ### Current Limitations
 
@@ -506,7 +506,7 @@ Our system has been tested on various manipulation tasks:
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **BitRobot** for sponsoring this project and providing hardware support
 - **Cal Hacks 12.0** for organizing this amazing hackathon
@@ -522,13 +522,13 @@ Our system has been tested on various manipulation tasks:
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the Apache 2.0 License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-## 📚 Citations
+## Citations
 
 If you use this work, please cite:
 
@@ -551,7 +551,7 @@ If you use this work, please cite:
 
 ---
 
-## 🔗 Links
+## Links
 
 - **Project Demo**: [YouTube Link]
 - **Dataset**: [HuggingFace Dataset]
