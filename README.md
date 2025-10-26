@@ -2,17 +2,30 @@
 
 **Cal Hacks 12.0 Project | Sponsored by BitRobot**
 
-## Setup
-
-Install LeRobot following their [installation guide](https://huggingface.co/docs/lerobot/installation) on BOTH your local machine and a target machine (if using one)
-
-Follow the [XLeRobot Docs](https://xlerobot.readthedocs.io/en/latest/software/getting_started/install.html) and **move the files from XLeRobot folder to your existing LeRobot folder** (important!)
-
 *Teaching robots through gestures and demonstrations*
-
 A system that lets robots learn manipulation tasks through gesture recognition and human demonstrations, powered by vision-language-action models.
 
----
+## Table of Contents
+- [Overview](https://github.com/dwu006/gest?tab=readme-ov-file#overview)
+- [Demo](https://github.com/dwu006/gest?tab=readme-ov-file#demo)
+- [How it works](https://github.com/dwu006/gest?tab=readme-ov-file#how-it-works)
+- [System Architecture](https://github.com/dwu006/gest?tab=readme-ov-file#system-architecture)
+- [Data Collection Pipeline](https://github.com/dwu006/gest?tab=readme-ov-file#data-collection-pipeline)
+- [Installation](https://github.com/dwu006/gest?tab=readme-ov-file#installation)
+    - [Prerequisites](https://github.com/dwu006/gest?tab=readme-ov-file#prerequisites)
+    - [Setup](https://github.com/dwu006/gest?tab=readme-ov-file#setup)
+- [Usage](https://github.com/dwu006/gest?tab=readme-ov-file#usage)
+  - [Running Teleoperation](https://github.com/dwu006/gest?tab=readme-ov-file#running-teleoperation)
+  - [Running Gestures](https://github.com/dwu006/gest?tab=readme-ov-file#running-with-gestures)
+- [Data Collection](https://github.com/dwu006/gest?tab=readme-ov-file#data-collection)
+    - [Recording Episodes](https://github.com/dwu006/gest?tab=readme-ov-file#recording-episodes)
+    - [How to Record](https://github.com/dwu006/gest?tab=readme-ov-file#how-to-record)
+    - [Data Format](https://github.com/dwu006/gest?tab=readme-ov-file#what-gets-saved)
+- [Technical Stack](https://github.com/dwu006/gest?tab=readme-ov-file#technical-stack)
+- [Limitations & Future Work](https://github.com/dwu006/gest?tab=readme-ov-file#limitations-and-future-work)
+- [Acknowledgments](https://github.com/dwu006/gest?tab=readme-ov-file#acknowledgments)
+- [Citation](https://github.com/dwu006/gest?tab=readme-ov-file#citation)
+
 ## Overview
 
 GEST bridges the gap between humans and robots through natural interaction. Instead of writing complex code, you simply show the robot what to do through gestures and demonstrations. The robot watches, learns, and then performs the task autonomously.
@@ -94,7 +107,7 @@ Trained Model
     |-- Robot performs task autonomously
 ```
 
-### Data Flow During Recording
+### Data Collection Pipeline
 
 When you demonstrate a task, the system records:
 - **Robot State**: Joint positions and velocities at 50Hz
@@ -162,7 +175,7 @@ python teleop_client.py $ROBOT_IP
 **Controls:**
 - Right arm: Move the leader arm physically
 - Left arm: W/S/A/D keys for movement, Q/E/R/F/T/G for joints
-- Base: I/K/J/L keys for movement
+- Base: I/K/J/L/U/O keys for movement (front,back,left,right,rotate-left,rotate-right)
 - Head: comma and period keys
 - Exit: ESC
 
@@ -220,16 +233,31 @@ For each demonstration:
 
 The goal is to be consistent but not robotic - natural variations in how you perform the task actually help the model learn better.
 
-### What Gets Saved
+### Data Format
 
 ```
-datasets/gesture_task_data/
-├── episode_000/
-│   ├── data.hdf5           # robot joint data and actions
-│   └── videos/
-│       └── head_camera.mp4 # what the robot saw
-├── episode_001/
-└── ...
+datasets/
+├── data/
+│   ├── episode_000/
+│   │   └── episode_000.parquet              # numeric data: robot observations + actions
+│   └── ...                                  # future episodes
+│
+├── meta/
+│   ├── info.json                            # global dataset metadata
+│   └── ...                                  # optional extra meta files (schema, stats, etc.)
+│
+└── videos/
+    ├── observations.images.front/
+    │   ├── episode_000.mp4                  # front camera video
+    │   └── ...                              # future episodes
+    │
+    ├── observations.images.left/
+    │   ├── episode_000.mp4                  # left camera video
+    │   └── ...                              # future episodes
+    │
+    └── observations.images.right/
+        ├── episode_000.mp4                  # right camera video
+        └── ...                              # future episodes
 ```
 
 ## Technical Stack
@@ -283,20 +311,9 @@ We also learned that data quality matters more than quantity. Fifty smooth, cons
 
 ---
 
-## Team
-
-Cal Hacks 12.0 Team:
-
-- [Your Name] - System Integration
-- [Team Member 2] - ML and Training
-- [Team Member 3] - Computer Vision
-- [Team Member 4] - Robot Hardware
-
----
-
 ## Acknowledgments
 
-Thanks to BitRobot for sponsoring this project and Cal Hacks 12.0 for hosting an amazing event.
+Thanks to BitRobot for sponsoring this project and Cal Hacks 12.0 for hosting an amazing event!
 
 This project builds on work from the robotics community, particularly:
 - HuggingFace for the lerobot framework and Small VLA model
@@ -311,9 +328,9 @@ If you find this work useful:
 
 ```bibtex
 @misc{gesturebot2024,
-  title={GestureBot: Teaching Robots Through Natural Demonstrations},
+  title={GEST: Gesture-Enabled System for Teleoperation},
   author={[Your Team]},
-  year={2024},
+  year={2025},
   howpublished={Cal Hacks 12.0}
 }
 ```
