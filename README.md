@@ -16,6 +16,8 @@ A system that lets robots learn manipulation tasks through gesture recognition a
     - [Setup](https://github.com/dwu006/gest?tab=readme-ov-file#setup)
 - [Usage](https://github.com/dwu006/gest?tab=readme-ov-file#usage)
   - [Running Teleoperation](https://github.com/dwu006/gest?tab=readme-ov-file#running-teleoperation)
+      - [Via Terminal](https://github.com/dwu006/gest?tab=readme-ov-file#via-terminal)
+      - [Via Script](https://github.com/dwu006/gest?tab=readme-ov-file#via-script)     
   - [Running Gestures](https://github.com/dwu006/gest?tab=readme-ov-file#running-with-gestures)
 - [Data Collection](https://github.com/dwu006/gest?tab=readme-ov-file#data-collection)
     - [Recording Episodes](https://github.com/dwu006/gest?tab=readme-ov-file#recording-episodes)
@@ -158,6 +160,8 @@ ping $ROBOT_IP  # verify connection
 
 ### Running Teleoperation
 
+## Wireless
+
 **On the robot:**
 ```bash
 ssh user@robot_ip
@@ -178,6 +182,32 @@ python teleop_client.py $ROBOT_IP
 - Base: I/K/J/L/U/O keys for movement (front,back,left,right,rotate-left,rotate-right)
 - Head: comma and period keys
 - Exit: ESC
+
+## Wired
+
+Connect Leader arms to your XLeRobot
+
+### Via Terminal
+You will need to run this twice (once for each arm)
+```bash
+conda activate lerobot
+python -m lerobot.teleoperate \
+    --robot.type=so101_follower \
+    --robot.port=/dev/ttyACM1 \
+    --robot.id=my_awesome_xle \
+    --teleop.type=so101_leader \
+    --teleop.port=/dev/ttyACM2 \
+    --teleop.id=my_awesome_xle \
+    --display_data=true
+```
+
+### Via Script
+Allow dual arm control
+```bash
+conda activate lerobot
+cd examples
+python teleop_bimanual.py
+```
 
 ### Running with Gestures
 
